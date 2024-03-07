@@ -82,21 +82,33 @@ def update_item(name,item:ItemSchema):
         return  JSONResponse(status_code=status.HTTP_404_NOT_FOUND,content={"message":"Item not Found"})
     
 # lets use the exception handling to 
-@app.delete("/item/{name}")
-# yo validation rakhna ekdam important xa when user click url without having the any values 
-def delete_item(name:str=Path(...,title="please enter the item name ",min_length=1)):
-    try:
-        delete_item= session.query(Item).filter_by(name=name).delete()
-        session.commit()
+# @app.delete("/item/{name}")
+# # yo validation rakhna ekdam important xa when user click url without having the any values 
+# def delete_item(name:str=Path(...,title="please enter the item name ",min_length=1)):
+#     try:
+#         delete_item= session.query(Item).filter_by(name=name).delete()
+#         session.commit()
         
-        if delete_item==0:
-            raise HTTPException(status_code=404,detail="Item not Found ") 
-        #yesto hunxa if condition right vayo vane chai  loop vitra janxa and if not bahera ko kura chai right hunxa vitra ko condition sangha kei farak mildaina 
-        return {"message":"Item deleted successfully "} # yesle chai mathi ko conditon false hunuparyo  ra mathi ko operation haru le kam gareko ho vanna milnu paryo 
-    except Exception as e:
-        session.rollback()
-        raise HTTPException(status_code=500,detail="Failed to delete item:"+str(e))
+#         if delete_item==0:
+#             raise HTTPException(status_code=404,detail="Item not Found ") 
+#         #yesto hunxa if condition right vayo vane chai  loop vitra janxa and if not bahera ko kura chai right hunxa vitra ko condition sangha kei farak mildaina 
+#         return {"message":"Item deleted successfully "} # yesle chai mathi ko conditon false hunuparyo  ra mathi ko operation haru le kam gareko ho vanna milnu paryo 
+#     except Exception as e:
+#         session.rollback()
+#         raise HTTPException(status_code=500,detail="Failed to delete item:"+str(e))
 
+# -----------------ANOTHER WAY DLETE ITEM----------------------------
+
+@app.delete("/item/{item_id}")
+def delete_item(item_id:int):
+    delete_item=session.query(Item).filter_by(id=item_id).first()
+
+    if delete_item is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource not found !")
+
+    session.delete(delete_item)
+    session.commit()
+    return delete_item
 
 
 
